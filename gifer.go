@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"flag"
+	"github.com/disintegration/imaging"
 	"image"
 	"image/gif"
 	"io/ioutil"
 	"log"
+	"os"
 	"path"
 	"regexp"
 )
@@ -33,5 +36,31 @@ func main() {
 		fileNames[index] = path.Join(*folderPath, file.Name())
 	}
 
-	// gifer := &gif.GIF{}
+	gifer := &gif.GIF{}
+
+	for _, filename := range fileNames {
+		f, err := imaging.Open(filename)
+		if err != nil {
+			log.Println("Failed to open", filename)
+			log.Fatalln(err)
+		}
+
+		buf := bytes.Buffer{}
+		err = gif.Encode(&buf, f, nil)
+		if err != nil {
+			log.Println("Failed to decode", filename, "are you sure its an image?")
+		}
+
+		tmpImg, _ := gif.Decode(&buf)
+
+		gifer.Image = append(gifer.Image, tmpImg.(*image.Paletted))
+		gifer.Delay = append(gifer.Delay, 10)
+	}
+
+	f, err := os.OpenFile(*gifName, os.O_WRONLY|os.O_CREATE, 0600)
+	defer f.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	gif.EncodeAll(f, gifer)
 }
