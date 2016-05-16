@@ -6,12 +6,13 @@ import (
 	"image/gif"
 	"io/ioutil"
 	"log"
+	"path"
 	"regexp"
 )
 
 func main() {
 	gifName := flag.String("name", "gifer.gif", "The filename of your gif!")
-	folderPath := flag.String("folderPath", ".", "Path to a folder of images")
+	folderPath := flag.String("folderpath", ".", "Path to a folder of images")
 
 	matched, err := regexp.MatchString(".gif", *gifName)
 	if err != nil || matched == false {
@@ -20,6 +21,17 @@ func main() {
 	}
 
 	flag.Parse()
+
+	files, err := ioutil.ReadDir(*folderPath)
+	if err != nil {
+		log.Println("Failed to find files in", folderPath)
+		log.Fatalln(err)
+	}
+
+	fileNames := make([]string, len(files))
+	for index, file := range files {
+		fileNames[index] = path.Join(*folderPath, file.Name())
+	}
 
 	// gifer := &gif.GIF{}
 }
