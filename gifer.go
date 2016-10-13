@@ -15,7 +15,9 @@ import (
 
 func main() {
 	gifName := flag.String("name", "gifer.gif", "The filename of your gif!")
-	folderPath := flag.String("folderpath", ".", "Path to a folder of images")
+	folderPath := flag.String("path", ".", "Path to a folder of images")
+	frameDisplay := flag.Int("frame", 10, "time for each frame")
+	flag.Parse()
 
 	matched, err := regexp.MatchString(".gif", *gifName)
 	if err != nil || matched == false {
@@ -54,7 +56,7 @@ func main() {
 		tmpImg, _ := gif.Decode(&buf)
 
 		gifer.Image = append(gifer.Image, tmpImg.(*image.Paletted))
-		gifer.Delay = append(gifer.Delay, 10)
+		gifer.Delay = append(gifer.Delay, *frameDisplay)
 	}
 
 	f, err := os.OpenFile(*gifName, os.O_WRONLY|os.O_CREATE, 0600)
